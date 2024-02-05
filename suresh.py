@@ -23,7 +23,7 @@ for page_num in range(num_pages):
 pdf_file_obj.close()
 
 # Set OpenAI API Key
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
 # Split text into documents
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
