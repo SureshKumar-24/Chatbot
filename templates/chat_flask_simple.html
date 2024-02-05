@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversational AI with PDF</title>
+</head>
+<body>
+    <h2>Conversational AI with PDF</h2>
+    <div>
+        <div>
+            <label for="userInput">You:</label>
+            <input type="text" id="userInput" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+        <div>
+            <strong>User:</strong> <span id="userMessage"></span>
+        </div>
+        <div>
+            <strong>Assistant:</strong> <span id="assistantMessage"></span>
+        </div>
+    </div>
+    <script>
+        function sendMessage() {
+            var userInput = document.getElementById('userInput').value;
+
+            // Display the user's message
+            document.getElementById('userMessage').innerHTML = userInput;
+
+            // Make a request to your Flask API to get the assistant's response
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `user_input=${userInput}`,
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Display the assistant's response
+                document.getElementById('assistantMessage').innerHTML = data;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

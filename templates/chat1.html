@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chatbot</title>
+</head>
+<body>
+    <div>
+        <h2>Simple Chatbot</h2>
+        <div>
+            <div>
+                <label for="userInput">You:</label>
+                <input type="text" id="userInput" />
+                <button onclick="sendMessage()">Send</button>
+            </div>
+            <div id="chatHistory"></div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var userInput = document.getElementById('userInput').value;
+            document.getElementById('userInput').value = '';
+
+            // Display user message
+            displayMessage('You', userInput);
+
+            // Make a POST request to the Flask API
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'user_input': userInput }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display bot response
+                displayMessage('Assistant', data.bot_response);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function displayMessage(sender, content) {
+            var chatHistory = document.getElementById('chatHistory');
+            var messageDiv = document.createElement('div');
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${content}`;
+            chatHistory.appendChild(messageDiv);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conversational AI with PDF</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #ece5dd;
+      }
+
+      #container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        justify-content: flex-end;
+      }
+      #container {
+        width: 700px;
+        margin: auto;
+      }
+
+      #userInput {
+        width: 85%;
+        margin-bottom: 10px;
+        padding: 0 15px;
+        border: 1px solid #ccc;
+        height: 48px;
+        border-radius: 0;
+        background-color: #ece5dd;
+      }
+
+      .message-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .user-message {
+        background-color: #25d366;
+        padding: 5px;
+        margin: 5px;
+        border-radius: 8px;
+        max-width: 400px;
+        align-self: flex-end;
+        background-color: #25d366;
+      }
+
+      .assistant-message {
+        background-color: #128c7e;
+        padding: 5px;
+        margin: 5px;
+        border-radius: 8px;
+        max-width: 600px;
+        align-self: flex-start;
+        background-color: #128c7e;
+      }
+      button.send {
+        background: #242424;
+        color: #fff;
+        border: 0;
+        height: 50px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        cursor: pointer;
+      }
+      .message-bottom {
+        position: relative;
+      }
+      div#messageContainer {
+        max-height: 500px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div class="message-container" id="messageContainer">
+        <!-- Messages will be displayed here -->
+      </div>
+      <div class="message-bottom">
+        <input type="text" id="userInput" placeholder="Type your message..." />
+        <button onclick="sendMessage()" class="send">Send</button>
+      </div>
+    </div>
+    <script>
+      var chatMessages = [];
+
+      function sendMessage() {
+        var userInput = document.getElementById("userInput").value;
+
+        // Display the user's message
+        addMessage("user", userInput);
+
+        // Make a request to your Flask API to get the assistant's response
+        fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `user_input=${userInput}`,
+        })
+          .then((response) => response.json()) // Parse JSON response
+          .then((data) => {
+            // Display the assistant's response
+            addMessage("assistant", data.bot_response);
+          })
+          .catch((error) => console.error("Error:", error));
+
+        // Clear the input field after sending the message
+        document.getElementById("userInput").value = "";
+      }
+
+      function addMessage(role, content) {
+        // Add message to the chatMessages array
+        chatMessages.push({ role: role, content: content });
+
+        // Display messages in the UI
+        displayMessages();
+      }
+
+      function displayMessages() {
+        var messageContainer = document.getElementById("messageContainer");
+        messageContainer.innerHTML = "";
+
+        // Loop through chatMessages array and display messages
+        chatMessages.forEach((message) => {
+          var messageElement = document.createElement("div");
+          messageElement.className =
+            message.role === "user" ? "user-message" : "assistant-message";
+
+          // Display the content of the message only
+          messageElement.innerHTML = message.content;
+
+          messageContainer.appendChild(messageElement);
+        });
+
+        // Scroll to the bottom of the message container
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+<!-- templates/authorize.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization</title>
+</head>
+<body>
+    <h1>Authorization</h1>
+    <p>Click the button below to open the authorization URL in a new window:</p>
+    <button onclick="openAuthorizationUrl('{{ auth_url }}')">Open Authorization URL</button>
+
+    <script>
+        function openAuthorizationUrl(url) {
+            // Open the authorization URL in a new window
+            var authWindow = window.open(url, '_blank');
+
+            // Check if the window is closed every second
+            var interval = setInterval(function() {
+                if (authWindow.closed) {
+                    // The window is closed, stop checking
+                    clearInterval(interval);
+
+                    // Redirect back to the callback URL after the user completes authorization
+                    window.location.href = '/callback';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
