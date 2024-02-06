@@ -1,6 +1,7 @@
 from flask import Flask, redirect, render_template, request
 from google_auth_oauthlib.flow import InstalledAppFlow
-
+import os 
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 # import os
 # os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
 
