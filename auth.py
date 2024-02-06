@@ -32,4 +32,4 @@ def callback():
     return "Authentication successful! You can close this window."
 
 if __name__ == "__main__":
-    app.run()
+     app.run(debug=True, host='0.0.0.0', port=5000)
