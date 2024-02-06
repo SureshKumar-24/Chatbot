@@ -23,7 +23,8 @@ for page_num in range(num_pages):
 pdf_file_obj.close()
 
 # Set OpenAI API Key
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
+
 
 # Split text into documents
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -57,5 +58,5 @@ def chat():
 
     return jsonify({"bot_response": bot_response})
 
-if __name__ == '__main__':
+if _name_ == '__main__':
     app.run(debug=True, port=5001)

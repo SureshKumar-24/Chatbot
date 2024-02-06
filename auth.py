@@ -8,7 +8,7 @@ app = Flask(__name__)
 print('hello')
 # Set up the OAuth 2.0 flow
 flow = InstalledAppFlow.from_client_secrets_file(
-    'token1.json',
+    'token2.json',
     scopes=['https://www.googleapis.com/auth/calendar.events'],
     redirect_uri='http://localhost:5000/callback'
 )

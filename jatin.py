@@ -1,61 +1,67 @@
-from flask import Flask, render_template, request, jsonify
-
-from langchain.vectorstores import FAISS
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains import ConversationalRetrievalChain
+from flask import Flask, render_template, request
 import os
-from PyPDF2 import PdfReader
+import langchain
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chat_models import ChatOpenAI
+from langchain.document_loaders import DirectoryLoader, TextLoader
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.indexes import VectorstoreIndexCreator
+from langchain.indexes.vectorstore import VectorStoreIndexWrapper
+from langchain.indexes.vectorstore import Chroma
+
+# Set the OPENAI API Key
+os.environ["OPENAI_API_KEY"] ="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"
+
+# Configure whether to persist the index
+PERSIST = True
 
 app = Flask(__name__)
 
-# Load PDF and extract text
-pdf_file_obj = open("docs/photoeng.pdf", "rb")
-pdf_reader = PdfReader(pdf_file_obj)
-num_pages = len(pdf_reader.pages)
-detected_text = ""
-
-for page_num in range(num_pages):
-    page_obj = pdf_reader.pages[page_num]
-    detected_text += page_obj.extract_text() + "\n\n"
-
-pdf_file_obj.close()
-
-# Set OpenAI API Key
-os.environ["OPENAI_API_KEY"] = "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"
-
-# Split text into documents
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-texts = text_splitter.create_documents([detected_text])
-
-# Build vector index
-directory = "index_store"
-vector_index = FAISS.from_documents(texts, OpenAIEmbeddings())
-vector_index.save_local(directory)
-
-# Load vector index and set up retriever
-vector_index = FAISS.load_local(directory, OpenAIEmbeddings())
-retriever = vector_index.as_retriever(search_type="similarity", search_kwargs={"k": 6})
-
-# Create ConversationalRetrievalChain
-conv_interface = ConversationalRetrievalChain.from_llm(ChatOpenAI(temperature=0), retriever=retriever)
-
-# Store chat history
-chat_history = []  # We won't use this
+query = None
+chat_history = []
 
 @app.route('/')
+@app.route('/index')
 def index():
-    return render_template('chat.html', user_input="", bot_response="")
+    return render_template('index.html', query=query)
 
-@app.route('/api/chat', methods=['POST'])
-def chat():
-    user_input = request.form['user_input']
+@app.route('/', methods=['POST'])
+def process_query():
+    global query
+    global chat_history
 
-    # Get the bot's response
-    bot_response = conv_interface({"question": user_input, "chat_history": chat_history})["answer"]
+    query = request.form['query']
 
-    return jsonify({"bot_response": bot_response})
+    if query in ['quit', 'q', 'exit']:
+        return "Goodbye!"
+
+    # Load index from persistence or create a new one
+    if PERSIST and os.path.exists("persist"):
+        vectorstore = Chroma(persist_directory="persist", embedding_function=OpenAIEmbeddings())
+        index = VectorStoreIndexWrapper(vectorstore=vectorstore)
+    else:
+        loader = TextLoader("test.txt", encoding="utf-8")
+
+        if PERSIST:
+            # Create an index with persistence
+            index = VectorstoreIndexCreator(vectorstore_kwargs={"persist_directory": "persist"}).from_loaders([loader])
+        else:
+            # Create an index without persistence
+            index = VectorstoreIndexCreator().from_loaders([loader])
+
+    # Create a conversational retrieval chain using the specified LLM model and index retriever
+    chain = ConversationalRetrievalChain.from_llm(
+        llm=ChatOpenAI(model="gpt-3.5-turbo"),
+        retriever=index.vectorstore.as_retriever(search_kwargs={"k": 1}),
+    )
+
+    # Generate an answer using the conversational chain
+    result = chain({"question": query, "chat_history": chat_history})
+
+    # Add the query and answer to chat history
+    chat_history.append((query, result['answer']))
+
+    return render_template('index.html', query=query, result=result['answer'])
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+     app.run(debug=True, port=5001)

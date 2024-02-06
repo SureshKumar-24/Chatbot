@@ -8,7 +8,7 @@ app = Flask(__name__)
 flow = InstalledAppFlow.from_client_secrets_file(
     'token1.json',
     scopes=['https://www.googleapis.com/auth/calendar.events'],
-    redirect_uri='https://1181-2405-201-5023-4045-1c7-e01c-1a33-32bc.ngrok-free.app/callback'
+    redirect_uri='http://localhost:5000'
 )
 
 @app.route("/")
