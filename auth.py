@@ -5,6 +5,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 # os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = Flask(__name__)
+
+app.config.update({
+    'OAUTH1_PROVIDER_ENFORCE_SSL': False
+})
+
 print('hello')
 # Set up the OAuth 2.0 flow
 flow = InstalledAppFlow.from_client_secrets_file(
