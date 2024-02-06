@@ -25,7 +25,7 @@ def authenticate():
 
 print('hello');
 
-@app.route("/callback1")
+@app.route("/callback")
 def callback():
     auth_response = request.args.get('code')
     flow.fetch_token(authorization_response=auth_response)
