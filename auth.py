@@ -1,7 +1,6 @@
 from flask import Flask, redirect, render_template, request
 from google_auth_oauthlib.flow import InstalledAppFlow
-import os 
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 # import os
 # os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
 
@@ -26,7 +25,7 @@ def authenticate():
 
 print('hello');
 
-@app.route("/callback")
+@app.route("/callback1")
 def callback():
     auth_response = request.args.get('code')
     flow.fetch_token(authorization_response=auth_response)
