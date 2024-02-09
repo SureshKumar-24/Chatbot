@@ -23,8 +23,7 @@ for page_num in range(num_pages):
 pdf_file_obj.close()
 
 # Set OpenAI API Key
-os.environ["OPENAI_API_KEY"] = "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"
-
+os.environ["OPENAI_API_KEY"] = "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"
 
 # Split text into documents
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -51,7 +50,7 @@ def index():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    user_input = request.form['user_input']
+    user_input = request.form['user_input'] + " Don’t justify your answers. Don’t give information not mentioned in the CONTEXT INFORMATION."
 
     # Get the bot's response
     bot_response = conv_interface({"question": user_input, "chat_history": chat_history})["answer"]
@@ -61,3 +60,8 @@ def chat():
 
 if __name__ == '__main__':
      app.run(debug=True, host='0.0.0.0', port=5000)
+
+api_key="AIzaSyCY1LvaAArI0QjNyx5KV7OrGhRQqzY4R9I"
+# Build Google Calendar API service
+calendar_service = build('calendar', 'v3', developerKey=api_key)
+
